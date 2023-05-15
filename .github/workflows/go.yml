@@ -2,17 +2,18 @@ name: Go
 
 on:
   push:
-    branches: [ Aula_5 ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ Aula_5 ]
+    branches: [ '*' ]
 
 jobs:
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         go_version: ['1.18', '1.17', '>=1.18']
+        os: ['ubuntu-latest', 'ubuntu-18.04']
     steps:
     - uses: actions/checkout@v3
 
@@ -20,21 +21,27 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go_version }}
-      
+      #Banco de dados
     - name: Build-DB
       run: docker-compose build
-      
+      #executa DB
     - name: Create-DB
       run: docker-compose up -d
 
     - name: Test
       run: go test -v main_test.go 
       
-  
+  #compilação do codigo
   build:
+  #terminado de executar tarefas de test executa build
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'ubuntu-18.04']
     steps:
+      # repositorio que esta utilizando
     - uses: actions/checkout@v3
     - name: Build
+     #comando dentro da maquina 
       run: go build -v main.go
