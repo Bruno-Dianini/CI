@@ -10,7 +10,7 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
-    env: 
+    env:
       HOST: localhost
       PORT: 5432
       USER: root
@@ -27,27 +27,35 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go_version }}
-      #Banco de dados
+      
     - name: Build-DB
       run: docker-compose build
-      #executa DB
+      
     - name: Create-DB
       run: docker-compose up -d
 
     - name: Test
       run: go test -v main_test.go 
       
-  #compilação do codigo
+  
   build:
-  #terminado de executar tarefas de test executa build
     needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ['ubuntu-latest', 'ubuntu-18.04']
+    runs-on: ubuntu-latest
     steps:
-      # repositorio que esta utilizando
     - uses: actions/checkout@v3
     - name: Build
-     #comando dentro da maquina 
       run: go build -v main.go
+      
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+    # Artifact name
+        name: programa
+    # A file, directory or wildcard pattern that describes what to upload
+        path: main
+
+
+  docker:
+    needs: build
+    uses: ./.github/workflows/Docker.yml
+    secrets: inherit
