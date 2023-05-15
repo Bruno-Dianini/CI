@@ -43,5 +43,5 @@ jobs:
       # repositorio que esta utilizando
     - uses: actions/checkout@v3
     - name: Build
-    #comando dentro da maquina 
+     #comando dentro da maquina 
       run: go build -v main.go
